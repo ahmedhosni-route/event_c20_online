@@ -105,23 +105,27 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            FutureBuilder(
-              future: DbService.getEvents(),
+            StreamBuilder(
+              stream: DbService.getEventsStream(index == 0? null : AppCategory.categories[index-1].id ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text(snapshot.error.toString()));
                 } else {
-                  List<EventModel> events = snapshot.data ?? [];
+                  List<EventModel> events =  [];
+                  for (var e in snapshot.data!.docs) {
+                    var event = EventModel.fromJson(e.data());
+                    events.add(event);
+                  }
                   return Expanded(
                     child: ListView.separated(
                       itemBuilder: (context, index) {
                         return EventWidget(event: events[index],onTapFav: ()async {
-                         await DbService.toggleFav(events[index]);
-                         setState(() {
+                          await DbService.toggleFav(events[index]);
+                          setState(() {
 
-                         });
+                          });
                         },);
                       },
                       separatorBuilder: (context, index) => SizedBox(height: 8),
@@ -131,6 +135,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               },
             ),
+
+            // FutureBuilder(
+            //   future: DbService.getEvents(index == 0? null : AppCategory.categories[index-1].id ),
+            //   builder: (context, snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return Center(child: CircularProgressIndicator());
+            //     } else if (snapshot.hasError) {
+            //       return Center(child: Text(snapshot.error.toString()));
+            //     } else {
+            //       List<EventModel> events = snapshot.data ?? [];
+            //       return Expanded(
+            //         child: ListView.separated(
+            //           itemBuilder: (context, index) {
+            //             return EventWidget(event: events[index],onTapFav: ()async {
+            //              await DbService.toggleFav(events[index]);
+            //              setState(() {
+            //
+            //              });
+            //             },);
+            //           },
+            //           separatorBuilder: (context, index) => SizedBox(height: 8),
+            //           itemCount: events.length,
+            //         ),
+            //       );
+            //     }
+            //   },
+            // ),
           ],
         ),
       ),
