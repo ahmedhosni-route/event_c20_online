@@ -1,4 +1,4 @@
-# evently_c20_online
+# eventlly
 
 A new Flutter project.
 
